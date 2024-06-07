@@ -1,0 +1,142 @@
+﻿@page "/edittenant/{id:int}"
+@using Newtonsoft.Json
+<PageTitle>/edittenant</PageTitle>
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+<p class="text-2xl font-semibold text-gray-900 dark:text-gray-900 ml-[50px]">Change Tenant Details</p>
+
+<div class="ml-[20px] mr-[800px] gap-9 mt-5">
+    <EditForm Model="@person" OnValidSubmit="@UpdateTenant">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="grid gap-8 mb-6 md:grid-cols-2">
+            <div class="form-group">
+                <label for="Lastname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Last Name</label>
+                <InputText id="Lastname" @bind-Value="person.Lastname" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[300px] p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-900" placeholder="John" />
+                <ValidationMessage For="@(() => person.Lastname)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Othernames" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Other Names</label>
+                <InputText id="Othernames" @bind-Value="person.Othernames" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[300px] p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-900" placeholder="Doe" />
+                <ValidationMessage For="@(() => person.Othernames)" />
+            </div>
+
+            <div class="form-group">
+                <label for="HouseNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Room Number</label>
+                <InputText id="HouseNumber" @bind-Value="person.HouseNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[300px] p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-900" placeholder="AH-1234-5678" />
+                <ValidationMessage For="@(() => person.HouseNumber)" />
+            </div>
+
+            <div class="form-group">
+                <label for="PhoneNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Phone Number</label>
+                <InputText id="PhoneNumber" @bind-Value="person.PhoneNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[300px] p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-900" placeholder="0241234567" />
+                <ValidationMessage For="@(() => person.PhoneNumber)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Email Address</label>
+                <InputText id="Email" @bind-Value="person.Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[300px] p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-900" placeholder="johndoe@gmail.com" />
+                <ValidationMessage For="@(() => person.Email)" />
+            </div>
+
+            <div class="relative max-w-sm form-group">
+                <label for="DoB" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Date of Birth</label>
+                <InputDate id="DoB" @bind-Value="person.DoB" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" />
+                <ValidationMessage For="@(() => person.DoB)" />
+            </div>
+            @*    <div class="form-group">
+            <label for="Gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Gender</label>
+            <InputText id="Gender" @bind-Value="person.Gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[300px] p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-900" placeholder="Male or Female" />
+            <ValidationMessage For="@(() => person.Gender)" />
+            </div>
+            *@
+            <div class="relative max-w-sm form-group">
+                <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Gender</label>
+                <select @bind="person.Gender" id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option selected>Choose a Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+
+            <div class="form-group pt-[27px]">
+                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-10 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Update</button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private Person person = new Person();
+
+    [Parameter]
+    public int id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        person = await LoadPerson();
+    }
+
+    private async Task UpdateTenant()
+    {
+        try
+        {
+            var data = new Person
+                {
+                    PersonId = id,
+                    DoB = person.DoB,
+                    Email = person.Email,
+                    Gender = person.Gender,
+                    HouseNumber = person.HouseNumber,
+                    Lastname = person.Lastname,
+                    Othernames = person.Othernames,
+                    PhoneNumber = person.PhoneNumber,
+
+
+                };
+            var response = await Http.PutAsJsonAsync($"api/person/{id}", data);
+            if (response.IsSuccessStatusCode)
+            {
+                // Handle success (e.g., navigate to another page or show a success message)
+                NavigationManager.NavigateTo("/");
+
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomCenter;
+
+                Snackbar.Add("Changes Successfully", Severity.Success);
+            }
+            else
+            {
+                // Handle error (e.g., show an error message)
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exception (e.g., show an error message)
+        }
+    }
+
+    public async Task<Person> LoadPerson()
+    {
+        HttpResponseMessage responseMessage = await Http.GetAsync($"api/person/{id}");
+
+        if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            var responseData = responseMessage.Content.ReadAsStringAsync().Result;
+
+            var decentralizedPerson = JsonConvert.DeserializeObject<Person>(responseData);
+
+            return decentralizedPerson;
+
+        }
+        else
+        {
+            return new Person();
+        }
+    }
+
+
+}

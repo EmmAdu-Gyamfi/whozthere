@@ -1,0 +1,210 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@using Newtonsoft.Json
+@using SqliteWasmHelper;
+@inject HttpClient _client
+@inject ISqliteWasmDbContextFactory<VisitorDbContext> Factory
+
+<PageTitle>Home</PageTitle>
+
+@if (persons == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg ml-5 mr-[200px]">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white" id="table">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-50 dark:text-gray-700">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Lastname
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Firstname
+                </th>
+                <th scope="col" class="px-6 py-3">
+                   Room Number
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Gender
+
+                </th>
+                <th scope="col" class="px-6 py-3">
+                   Phone Number
+
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Email
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Date of Birth
+                </th>
+                @* <th scope="col" class="px-6 py-3">
+                    Action
+                </th> *@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in persons)
+            {
+                <tr class="odd:bg-white odd:dark:bg-white even:bg-gray-50 even:dark:bg-gray-50 border-b dark:border-b text-gray-900 dark:text-gray-900">
+                   @*  <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        @Html.DisplayFor(modelItem => item.Lastname)
+
+                    </th> *@
+                    <td class="px-6 py-4">
+                        @item.Lastname
+
+                    </td>
+                    <td class="px-6 py-4">
+                        @item.Othernames
+
+                    </td>
+                    <td class="px-6 py-4">
+                        @item.HouseNumber
+
+                    </td>
+                    <td class="px-6 py-4">
+                        @item.Gender
+
+                    </td>
+                    <td class="px-6 py-4">
+                        @item.PhoneNumber
+
+
+                    </td>
+                    <td class="px-6 py-4">
+                        @item.Email
+
+                    </td>
+                    <td class="px-6 py-4">
+                        @item.DoB
+
+                    </td>
+                    <td class="px-6 py-4 flex" >
+                        <a href="edittenant/@item.PersonId" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16" color="#1d4178">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                            </svg>
+
+                        </a>
+                            <a href="Tenantdetails/@item.PersonId" class="font-medium text-blue-600 dark:text-blue-500 hover:underline  ms-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16" color="#059c2a">
+                                <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+                            </svg>
+                        </a>
+                        <a href="deletetenant/@item.PersonId" data-person-id="@item.PersonId" data-modal-target="popup-modal" data-modal-toggle="popup-modal"  class="font-medium text-blue-600 dark:text-blue-500 hover:underline  ms-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16" color="#8c0606">
+                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                            </svg>
+                        </a>
+                    </td>
+                </tr>
+            }
+       
+          
+        </tbody>
+    </table>
+</div>
+
+<div class="fixed right-5 top-5">
+    <a href="addtenant">
+        <button type="button" class="text-white bg-gradient-to-br from-green-500 to-green-800 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 text-center me-2 mb-2 flex">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16" color="#FFFFFF">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+            </svg>
+            Add Tenant
+        </button>
+    </a>
+</div>
+}
+
+
+@code{
+    private List<Person> persons;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        persons =  await LoadPersons();
+
+
+    }
+
+    public async Task<List<Person>> LoadPersons()
+    {
+        try
+        {
+            HttpResponseMessage responseMessage = await _client.GetAsync("api/person");
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var responseData = responseMessage.Content.ReadAsStringAsync().Result;
+
+                var decentralizedPersons = JsonConvert.DeserializeObject<List<Person>>(responseData);
+
+                using var ctx = await Factory.CreateDbContextAsync();
+
+                foreach(Person person in decentralizedPersons)
+                {
+                    await ctx.People.AddAsync(person);
+                    await ctx.SaveChangesAsync();
+                }
+
+
+                return decentralizedPersons;
+
+            }
+            else
+            {
+                return new List<Person>();
+            }
+        }
+        catch(HttpRequestException ex)
+        {
+
+            var cachedPersons = await GetCachedPersons();
+
+            return cachedPersons;
+        }
+    }
+
+    public async Task AddCachedPersons(List<Person> people) 
+    {
+        using var ctx = await Factory.CreateDbContextAsync();
+        people.Select(a => ctx.People.AddAsync(a));
+        await ctx.SaveChangesAsync();
+    }
+
+    public async Task<List<Person>> GetCachedPersons()
+    {
+        using var ctx = await Factory.CreateDbContextAsync();
+        // if (ctx.People.Any())
+        // {
+            List<Person> persons = await ctx.People.ToListAsync();
+
+            // List<Person> persons = personList.Select(x => new Person
+            // {
+            //     PersonId = x.PersonId,
+            //     DoB = x.DoB,
+            //     Email = x.Email,
+            //     Gender = x.Gender,
+            //     HouseNumber = x.HouseNumber,
+            //     Lastname = x.Lastname,
+            //     Othernames = x.Othernames,
+            //     PhoneNumber = x.PhoneNumber
+            // }).ToList();
+
+            return persons;
+
+        // }
+        // List<Person> emptyList = new List<Person>();
+        // return emptyList;
+    }
+
+   
+
+}
